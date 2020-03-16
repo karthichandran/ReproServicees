@@ -98,8 +98,8 @@
                       <mat-form-field appearance="outline" fxFlex="33" class="pr-4">
                         <mat-label>State</mat-label>
                         <mat-select formControlName="stateID" required>
-                          <mat-option *ngFor="let option of states" [value]="option.id">
-                            {{option.description}}
+                          <mat-option *ngFor="let option of states" [value]="option.stateID">
+                            {{option.state}}
                           </mat-option>
                         </mat-select>
                         <mat-error>State is required!</mat-error>
@@ -114,7 +114,7 @@
                     <div fxLayout="row" fxLayoutAlign="start center">
 
                       <div appearance="outline" fxFlex="50" class="pr-4">
-                        <label>Staus</label>
+                        <label>Status</label>
                         <mat-radio-group aria-label="Select an option" required formControlName="status">
                           <mat-radio-button value="resident">Resident</mat-radio-button>
                           <mat-radio-button value="nonResident">Non Resident</mat-radio-button>

@@ -3,8 +3,10 @@ import { FormBuilder, FormGroup, Validators, FormGroupDirective, ValidatorFn, Ab
 import { fuseAnimations } from '@fuse/animations';
 import { IRoleReportingTo } from '../models/RoleReportingTo';
 import { SellerService } from './seller.service';
+import { StatesService} from '../shared/services/states.service'
 import * as Xlsx from 'xlsx';
 import * as moment from 'moment';
+import {StateDto } from '../ReProServices-api';
 
 @Component({
   selector: 'app-seller',
@@ -15,13 +17,13 @@ import * as moment from 'moment';
 export class SellerComponent implements OnInit, OnDestroy {
   form: FormGroup;
   sellers: any[] = [];
-  states: any[] = [{'id':1,'description':'karnataka'}];
+  states: any[] = [];
   rowData: any[] = [];
   columnDef: any[] = [];
 
   isRadioButtonTouched: boolean = true;
 
-  constructor(private _formBuilder: FormBuilder,private sellerService:SellerService) {
+  constructor(private _formBuilder: FormBuilder, private sellerService: SellerService, private statesService: StatesService) {
 
   }
 
@@ -51,6 +53,8 @@ export class SellerComponent implements OnInit, OnDestroy {
     ];
 
     this.getAllSellers();
+    this.getAllStates();
+
   }
   
   save() {
@@ -96,6 +100,13 @@ export class SellerComponent implements OnInit, OnDestroy {
       this.rowData = response;
     });
   }
+
+  getAllStates() {
+    this.statesService.getStates().subscribe((response) => {
+      this.states = response;
+    });
+  }
+
   addCoSeller() {
     var selle: any = [];
     this.sellerService.getSellerEntry("1").subscribe((response) => {

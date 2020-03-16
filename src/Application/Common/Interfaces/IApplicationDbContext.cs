@@ -13,6 +13,8 @@ namespace ReProServices.Application.Common.Interfaces
 
         DbSet<Seller> Seller { get; set; }
 
+        DbSet<Domain.Entities.States> StateList { get; set; }
+
         Task<int> SaveChangesAsync(CancellationToken cancellationToken);
     }
 }

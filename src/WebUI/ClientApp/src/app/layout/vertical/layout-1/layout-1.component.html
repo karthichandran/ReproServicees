@@ -9,7 +9,8 @@
 <div id="main">
 
     <!-- TOOLBAR: Above -->
-    <ng-container *ngIf="fuseConfig.layout.toolbar.position === 'above'">
+
+    <ng-container *ngIf="fuseConfig.layout.toolbar.position === 'above'" fxHide.gt-md>
         <ng-container *ngTemplateOutlet="toolbar"></ng-container>
     </ng-container>
     <!-- / TOOLBAR: Above -->
@@ -34,9 +35,11 @@
                  [fusePerfectScrollbarOptions]="{suppressScrollX: true, updateOnRouteChange : true}">
 
                 <!-- TOOLBAR: Below static -->
-                <ng-container *ngIf="fuseConfig.layout.toolbar.position === 'below-static'">
-                    <ng-container *ngTemplateOutlet="toolbar"></ng-container>
+              <div fxHide.gt-md>
+                <ng-container *ngIf="fuseConfig.layout.toolbar.position === 'below-static'" >
+                  <ng-container *ngTemplateOutlet="toolbar"></ng-container>
                 </ng-container>
+              </div>
                 <!-- / TOOLBAR: Below static -->
 
                 <!-- CONTENT -->

@@ -1,0 +1,14 @@
+﻿using ReProServices.Domain.Common;
+using ReProServices.Domain.Enums;
+using System.ComponentModel.DataAnnotations;
+
+namespace ReProServices.Domain.Entities
+{
+    public class States: AuditableEntity
+	{[Key]
+		public int StateID { get; set; }
+		public string State { get; set; }
+		public string Abbreviation { get; set; }
+		
+	}
+}

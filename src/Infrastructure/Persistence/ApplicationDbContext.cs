@@ -33,6 +33,9 @@ namespace ReProServices.Infrastructure.Persistence
 
         public DbSet<Seller> Seller { get; set; }
 
+        public DbSet<States> StateList { get; set; }
+
+
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
         {
             foreach (var entry in ChangeTracker.Entries<AuditableEntity>())
