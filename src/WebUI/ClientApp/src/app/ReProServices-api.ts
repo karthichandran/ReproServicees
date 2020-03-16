@@ -243,6 +243,76 @@ export class SellerClient implements ISellerClient {
     }
 }
 
+export interface IStatesClient {
+    get(): Observable<StateDto[]>;
+}
+
+@Injectable({
+    providedIn: 'root'
+})
+export class StatesClient implements IStatesClient {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ? baseUrl : "";
+    }
+
+    get(): Observable<StateDto[]> {
+        let url_ = this.baseUrl + "/api/States";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",			
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGet(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGet(<any>response_);
+                } catch (e) {
+                    return <Observable<StateDto[]>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<StateDto[]>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processGet(response: HttpResponseBase): Observable<StateDto[]> {
+        const status = response.status;
+        const responseBlob = 
+            response instanceof HttpResponse ? response.body : 
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(StateDto.fromJS(item));
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<StateDto[]>(<any>null);
+    }
+}
+
 export interface ITodoItemsClient {
     create(command: CreateTodoItemCommand): Observable<number>;
     update(id: number, command: UpdateTodoItemCommand): Observable<FileResponse>;
@@ -961,6 +1031,50 @@ export class UpdateSellerCommand implements IUpdateSellerCommand {
 
 export interface IUpdateSellerCommand {
     sellerDto?: SellerDto | undefined;
+}
+
+export class StateDto implements IStateDto {
+    stateID?: number;
+    state?: string | undefined;
+    abbreviation?: string | undefined;
+
+    constructor(data?: IStateDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.stateID = _data["stateID"];
+            this.state = _data["state"];
+            this.abbreviation = _data["abbreviation"];
+        }
+    }
+
+    static fromJS(data: any): StateDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new StateDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["stateID"] = this.stateID;
+        data["state"] = this.state;
+        data["abbreviation"] = this.abbreviation;
+        return data; 
+    }
+}
+
+export interface IStateDto {
+    stateID?: number;
+    state?: string | undefined;
+    abbreviation?: string | undefined;
 }
 
 export class CreateTodoItemCommand implements ICreateTodoItemCommand {
