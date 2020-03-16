@@ -32,6 +32,42 @@
             "JWT": []
           }
         ]
+      },
+      "post": {
+        "tags": [
+          "Seller"
+        ],
+        "operationId": "Seller_Create",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSellerCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
       }
     },
     "/api/Seller/{id}": {
@@ -59,6 +95,54 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/SellerDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Seller"
+        ],
+        "operationId": "Seller_Update",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSellerCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
                 }
               }
             }
@@ -500,6 +584,34 @@
           "stateID": {
             "type": "integer",
             "format": "int32"
+          }
+        }
+      },
+      "CreateSellerCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sellerDto": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/SellerDto"
+              }
+            ]
+          }
+        }
+      },
+      "UpdateSellerCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sellerDto": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/SellerDto"
+              }
+            ]
           }
         }
       },
