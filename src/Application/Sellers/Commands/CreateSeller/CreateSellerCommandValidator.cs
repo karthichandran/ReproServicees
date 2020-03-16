@@ -1,10 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using FluentValidation;
 
 namespace ReProServices.Application.Sellers.Commands.CreateSeller
 {
-    public class CreateSellerCommandValidator
+    public class CreateSellerCommandValidator : AbstractValidator<CreateSellerCommand>
     {
+        public CreateSellerCommandValidator()
+        {
+            RuleFor(s => s.sellerDto.PAN)
+           .Length(10)
+           .NotEmpty();
+        }
     }
 }

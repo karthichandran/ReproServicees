@@ -132,9 +132,10 @@ export class AppComponent implements OnInit, OnDestroy {
    */
   ngOnInit(): void {
 
-    if (!this.auth.isAuthenticated()) {
+    this.auth.isAuthenticated().subscribe((authenticated) => {
+      if (!authenticated)
       this.router.navigateByUrl('/authentication/login');
-    }
+    });
 
     // Subscribe to config changes
     this._fuseConfigService.config

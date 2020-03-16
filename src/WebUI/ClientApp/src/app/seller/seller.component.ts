@@ -4,6 +4,7 @@ import { fuseAnimations } from '@fuse/animations';
 import { IRoleReportingTo } from '../models/RoleReportingTo';
 import { SellerService } from './seller.service';
 import * as Xlsx from 'xlsx';
+import * as moment from 'moment';
 
 @Component({
   selector: 'app-seller',
@@ -27,61 +28,56 @@ export class SellerComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     // Reactive Form
     this.form = this._formBuilder.group({
-      name: ['', Validators.required],
-      promises: ['', Validators.required],
-      flat: ['', Validators.required],
-      road: [''],
+      sellerID:[''],
+      sellerName: ['', Validators.required],
+      addressPremises: ['', Validators.required],
+      adressLine1: ['', Validators.required],
+      addressLine2: [''],
       city: ['', Validators.required],
-      state: ['', Validators.required],
+      stateID: ['', Validators.required],
       pinCode: ['', Validators.required],
       status: ['resident', Validators.required],     
       pan: ['', [Validators.required,this.panValidator()]],
-      email: [''],
-      phone: [''],
-      share: ['']
+      emailID: [''],
+      mobileNo: ['']
+     
     });
     
-    this.columnDef = [{ 'header': 'Name', 'field': 'name', 'type': 'label' },
-    { 'header': 'Employee ID', 'field': 'empId', 'type': 'label' },
-    { 'header': 'Email', 'field': 'email', 'type': 'label' },
-    { 'header': 'Mobile', 'field': 'phone', 'type': 'label' },
-    { 'header': 'Role', 'field': 'role', 'type': 'label' },
-    { 'header': 'Date', 'field': 'dates', 'type': 'label' },
-    { 'header': 'Status', 'field': 'status', 'type': 'label' }
+    this.columnDef = [{ 'header': 'Name', 'field': 'sellerName', 'type': 'label' },
+      { 'header': 'Premises', 'field': 'addressPremises', 'type': 'label' },
+      { 'header': 'Email', 'field': 'emailID', 'type': 'label' },    
+    { 'header': 'Pan', 'field': 'pan', 'type': 'label' },
+      { 'header': 'Mobile', 'field': 'mobileNo', 'type': 'label' }
     ];
 
     this.getAllSellers();
+  }
+  
+  save() {
+
+    if (this.form.valid) {
+      let model = this.form.value;
+      this.sellerService.saveSeller(model).subscribe((response) => {
+        this.clear();
+        this.getAllSellers();
+        
+      });
+    }
   }
 
   clear() {
     this.form.reset();
   }
-
-  save() {
-
-    if (this.form.valid) {
-      let model = this.form.value;
-      let startDate = new Date(this.form.value);
-    }
-  }
-
   /**
      * On destroy
      */
   ngOnDestroy(): void {
   }
 
-  selectedRows(eve) {
-    eve.selected[0]['gender'] = 1;
-    eve.selected[0]['birthDate'] = new Date();
-    eve.selected[0]['startDate'] = new Date();
-    eve.selected[0]['toDate'] = new Date();
+  selectedRows(eve) {   
     this.form.patchValue(eve.selected[0]);
-
-
     var ele = document.getElementsByClassName('mat-tab-label') as HTMLCollectionOf<HTMLElement>;
     ele[0].click();
-
   }
 
   download() {

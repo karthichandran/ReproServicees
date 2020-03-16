@@ -1,9 +1,10 @@
-﻿using ReProServices.Application.Sellers.Commands;
-using ReProServices.Application.Sellers.Queries.GetSellers;
+﻿using ReProServices.Application.Sellers.Queries.GetSellers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using ReProServices.Application.Sellers.Commands.UpdateSeller;
+using ReProServices.Application.Sellers.Commands.CreateSeller;
 
 namespace ReProServices.WebUI.Controllers
 {
@@ -22,37 +23,24 @@ namespace ReProServices.WebUI.Controllers
             return await Mediator.Send(new GetSellersByIdQuery { SellerID = id });
         }
 
-        //[HttpPost]
-        //public async Task<ActionResult<long>> Create(CreateTodoItemCommand command)
-        //{
-        //    return await Mediator.Send(command);
-        //}
+        [HttpPost]
+        public async Task<ActionResult<int>> Create( CreateSellerCommand command)
+        {
+            return await Mediator.Send(command);
+        }
 
-        //[HttpPut("{id}")]
-        //public async Task<ActionResult> Update(long id, UpdateTodoItemCommand command)
-        //{
-        //    if (id != command.Id)
-        //    {
-        //        return BadRequest();
-        //    }
+        [HttpPut("{id}")]
+        public async Task<ActionResult> Update(long id, UpdateSellerCommand command)
+        {
+            if (id != command.sellerDto.SellerID)
+            {
+                return BadRequest();
+            }
 
-        //    await Mediator.Send(command);
+            await Mediator.Send(command);
 
-        //    return NoContent();
-        //}
-
-        //[HttpPut("[action]")]
-        //public async Task<ActionResult> UpdateItemDetails(long id, UpdateTodoItemDetailCommand command)
-        //{
-        //    if (id != command.Id)
-        //    {
-        //        return BadRequest();
-        //    }
-
-        //    await Mediator.Send(command);
-
-        //    return NoContent();
-        //}
+            return NoContent();
+        }
 
         //[HttpDelete("{id}")]
         //public async Task<ActionResult> Delete(long id)
