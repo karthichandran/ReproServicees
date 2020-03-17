@@ -50,7 +50,7 @@ export const navigation: FuseNavigation[] = [
       //},
       {
         id: 'seller',
-        title: 'Sellers',
+        title: 'Seller',
         translate: 'NAV.SELLER.TITLE',
         type: 'item',
         icon: 'location_city',

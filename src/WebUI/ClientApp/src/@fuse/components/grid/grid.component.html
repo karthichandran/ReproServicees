@@ -54,7 +54,7 @@
              
           <ng-template ngx-datatable-header-template let-value="value">
             <div *ngIf="!column.checkall">
-              <span>{{column.header}}</span>
+              <span class="header-name">{{column.header}}</span>
             </div>
             <div *ngIf="column.checkall">
               <mat-checkbox (change)="selectAllCheckbox(column.field,$event)"></mat-checkbox> <span style="padding-left:5px;">{{column.header}}</span>

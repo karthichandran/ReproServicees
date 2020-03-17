@@ -37,7 +37,7 @@
 
         <mat-tab-group fxLayout="column" fxFlex>
 
-          <mat-tab label="Property Creation" #tab1>
+          <mat-tab label="Manage Property" #tab1>
 
             <div class="order-details tab-content p-24" fusePerfectScrollbar>
 
@@ -62,7 +62,7 @@
                       <mat-form-field class="selection-fix" appearance="outline" fxFlex>
                         <mat-label>Type of property(Propject Details)</mat-label>
                         <mat-select formControlName="propertyType" required>
-                          <mat-option *ngFor="let option of states" [value]="option.id">
+                          <mat-option *ngFor="let option of typeOfProperty" [value]="option.id">
                             {{option.description}}
                           </mat-option>
                         </mat-select>
@@ -73,19 +73,19 @@
 
                       <mat-form-field appearance="outline" fxFlex>
                         <mat-label>Name of the premises/Building/village</mat-label>
-                        <input matInput formControlName="promises">
+                        <input matInput formControlName="addressPremises">
 
                       </mat-form-field>
 
                       <mat-form-field appearance="outline" fxFlex>
                         <mat-label>Flat/Door/Block No</mat-label>
-                        <input matInput formControlName="flat">
+                        <input matInput formControlName="addressLine1">
 
                       </mat-form-field>
 
                       <mat-form-field appearance="outline" fxFlex>
                         <mat-label>Road/Street/Lane</mat-label>
-                        <input matInput formControlName="road">
+                        <input matInput formControlName="addressLine2">
 
                       </mat-form-field>
 
@@ -101,9 +101,9 @@
 
                       <mat-form-field class="selection-fix" appearance="outline" fxFlex>
                         <mat-label>State</mat-label>
-                        <mat-select formControlName="state" required>
-                          <mat-option *ngFor="let option of states" [value]="option.id">
-                            {{option.description}}
+                        <mat-select formControlName="stateID" required>
+                          <mat-option *ngFor="let option of states" [value]="option.stateID">
+                            {{option.state}}
                           </mat-option>
                         </mat-select>
                         <mat-error>State is required!</mat-error>
@@ -120,8 +120,8 @@
                     <div fxFlex="1 0 auto" fxLayout="row wrap">
                       <mat-form-field class="selection-fix" appearance="outline" fxFlex>
                         <mat-label>GST Rate</mat-label>
-                        <mat-select formControlName="gstRate" required>
-                          <mat-option *ngFor="let option of states" [value]="option.id">
+                        <mat-select formControlName="gstTaxCode" required>
+                          <mat-option *ngFor="let option of gstCode" [value]="option.id">
                             {{option.description}}
                           </mat-option>
                         </mat-select>
@@ -130,8 +130,8 @@
 
                       <mat-form-field class="selection-fix" appearance="outline" fxFlex>
                         <mat-label>TDS Rate</mat-label>
-                        <mat-select formControlName="tdsRate" required>
-                          <mat-option *ngFor="let option of states" [value]="option.id">
+                        <mat-select formControlName="tdsTaxCode" required>
+                          <mat-option *ngFor="let option of tdsCode" [value]="option.id">
                             {{option.description}}
                           </mat-option>
                         </mat-select>
@@ -145,7 +145,7 @@
 
                       <mat-form-field appearance="outline" fxFlex>
                         <mat-label> Late fee/day</mat-label>
-                        <input matInput formControlName="lateFee" required>
+                        <input matInput formControlName="lateFeeDay" required>
                         <mat-error>Valid PAN is required!</mat-error>
                       </mat-form-field>
                     </div>
@@ -169,7 +169,7 @@
                             <span>Add Co-Seller </span>
                           </button>
                         </div>
-                        <grid [dataSet]="rowData" [gridColDef]="columnDef" (selectedRows)="selectedRows($event)"></grid>
+                        <grid [dataSet]="sellerData" [gridColDef]="sellerColumnDef" ></grid>
                       </div>
                     </div>
                   </div>

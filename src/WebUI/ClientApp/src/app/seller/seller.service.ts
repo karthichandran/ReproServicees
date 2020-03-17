@@ -36,6 +36,7 @@ export class SellerService {
   }
 
   saveSeller(seller: SellerDto): Observable<any> {
+
     if(seller.sellerID>0)
       return this.http.put('/api/Seller/'+seller.sellerID, { 'sellerDto':seller });
     else

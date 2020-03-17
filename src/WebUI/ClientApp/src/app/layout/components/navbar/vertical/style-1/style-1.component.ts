@@ -1,12 +1,15 @@
 import { Component, OnDestroy, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
-import { Subject } from 'rxjs';
+import { Subject,Observable } from 'rxjs';
 import { delay, filter, take, takeUntil } from 'rxjs/operators';
 
 import { FuseConfigService } from '@fuse/services/config.service';
 import { FuseNavigationService } from '@fuse/components/navigation/navigation.service';
 import { FusePerfectScrollbarDirective } from '@fuse/directives/fuse-perfect-scrollbar/fuse-perfect-scrollbar.directive';
 import { FuseSidebarService } from '@fuse/components/sidebar/sidebar.service';
+
+import { AuthorizeService } from '../../../../../../api-authorization/authorize.service'
+import { map, tap } from 'rxjs/operators';
 
 @Component({
     selector     : 'navbar-vertical-style-1',
@@ -23,6 +26,9 @@ export class NavbarVerticalStyle1Component implements OnInit, OnDestroy
     private _fusePerfectScrollbar: FusePerfectScrollbarDirective;
     private _unsubscribeAll: Subject<any>;
 
+  public isAuthenticated: Observable<boolean>;
+  public userName: Observable<string>;
+
     /**
      * Constructor
      *
@@ -35,7 +41,8 @@ export class NavbarVerticalStyle1Component implements OnInit, OnDestroy
         private _fuseConfigService: FuseConfigService,
         private _fuseNavigationService: FuseNavigationService,
         private _fuseSidebarService: FuseSidebarService,
-        private _router: Router
+      private _router: Router,
+      private authorizeService: AuthorizeService
     )
     {
         // Set the private defaults
@@ -119,6 +126,10 @@ export class NavbarVerticalStyle1Component implements OnInit, OnDestroy
             .subscribe(() => {
                 this.navigation = this._fuseNavigationService.getCurrentNavigation();
             });
+
+      //User Name
+      this.isAuthenticated = this.authorizeService.isAuthenticated();
+      this.userName = this.authorizeService.getUser().pipe(map(u => u && u.name));
     }
 
     /**

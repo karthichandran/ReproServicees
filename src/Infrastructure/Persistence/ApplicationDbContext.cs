@@ -35,6 +35,8 @@ namespace ReProServices.Infrastructure.Persistence
 
         public DbSet<States> StateList { get; set; }
 
+        public DbSet<Property> Property { get; set; }
+
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
         {

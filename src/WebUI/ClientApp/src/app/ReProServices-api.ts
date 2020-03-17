@@ -14,6 +14,183 @@ import { HttpClient, HttpHeaders, HttpResponse, HttpResponseBase } from '@angula
 
 export const API_BASE_URL = new InjectionToken<string>('API_BASE_URL');
 
+export interface IPropertyClient {
+    get(): Observable<PropertyDto[]>;
+    create(command: CreatePropertyCommand): Observable<number>;
+    update(id: number, command: UpdatePropertyCommand): Observable<FileResponse>;
+}
+
+@Injectable({
+    providedIn: 'root'
+})
+export class PropertyClient implements IPropertyClient {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ? baseUrl : "";
+    }
+
+    get(): Observable<PropertyDto[]> {
+        let url_ = this.baseUrl + "/api/Property";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",			
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGet(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGet(<any>response_);
+                } catch (e) {
+                    return <Observable<PropertyDto[]>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<PropertyDto[]>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processGet(response: HttpResponseBase): Observable<PropertyDto[]> {
+        const status = response.status;
+        const responseBlob = 
+            response instanceof HttpResponse ? response.body : 
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(PropertyDto.fromJS(item));
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<PropertyDto[]>(<any>null);
+    }
+
+    create(command: CreatePropertyCommand): Observable<number> {
+        let url_ = this.baseUrl + "/api/Property";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",			
+            headers: new HttpHeaders({
+                "Content-Type": "application/json", 
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreate(<any>response_);
+                } catch (e) {
+                    return <Observable<number>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<number>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processCreate(response: HttpResponseBase): Observable<number> {
+        const status = response.status;
+        const responseBlob = 
+            response instanceof HttpResponse ? response.body : 
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = resultData200 !== undefined ? resultData200 : <any>null;
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<number>(<any>null);
+    }
+
+    update(id: number, command: UpdatePropertyCommand): Observable<FileResponse> {
+        let url_ = this.baseUrl + "/api/Property/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id)); 
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",			
+            headers: new HttpHeaders({
+                "Content-Type": "application/json", 
+                "Accept": "application/octet-stream"
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdate(<any>response_);
+                } catch (e) {
+                    return <Observable<FileResponse>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<FileResponse>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processUpdate(response: HttpResponseBase): Observable<FileResponse> {
+        const status = response.status;
+        const responseBlob = 
+            response instanceof HttpResponse ? response.body : 
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }};
+        if (status === 200 || status === 206) {
+            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
+            const fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+            const fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+            return _observableOf({ fileName: fileName, data: <any>responseBlob, status: status, headers: _headers });
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<FileResponse>(<any>null);
+    }
+}
+
 export interface ISellerClient {
     get(): Observable<SellerDto[]>;
     create(command: CreateSellerCommand): Observable<number>;
@@ -883,6 +1060,158 @@ export class WeatherForecastClient implements IWeatherForecastClient {
         }
         return _observableOf<WeatherForecast[]>(<any>null);
     }
+}
+
+export class PropertyDto implements IPropertyDto {
+    propertyID?: number;
+    propertyType?: number;
+    addressPremises?: string | undefined;
+    addressLine1?: string | undefined;
+    addressLine2?: string | undefined;
+    city?: string | undefined;
+    pinCode?: string | undefined;
+    tdsInterestRate?: number;
+    lateFeeDay?: Date;
+    stateID?: number;
+    gstTaxCode?: number;
+    tdsTaxCode?: number;
+
+    constructor(data?: IPropertyDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.propertyID = _data["propertyID"];
+            this.propertyType = _data["propertyType"];
+            this.addressPremises = _data["addressPremises"];
+            this.addressLine1 = _data["addressLine1"];
+            this.addressLine2 = _data["addressLine2"];
+            this.city = _data["city"];
+            this.pinCode = _data["pinCode"];
+            this.tdsInterestRate = _data["tdsInterestRate"];
+            this.lateFeeDay = _data["lateFeeDay"] ? new Date(_data["lateFeeDay"].toString()) : <any>undefined;
+            this.stateID = _data["stateID"];
+            this.gstTaxCode = _data["gstTaxCode"];
+            this.tdsTaxCode = _data["tdsTaxCode"];
+        }
+    }
+
+    static fromJS(data: any): PropertyDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PropertyDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["propertyID"] = this.propertyID;
+        data["propertyType"] = this.propertyType;
+        data["addressPremises"] = this.addressPremises;
+        data["addressLine1"] = this.addressLine1;
+        data["addressLine2"] = this.addressLine2;
+        data["city"] = this.city;
+        data["pinCode"] = this.pinCode;
+        data["tdsInterestRate"] = this.tdsInterestRate;
+        data["lateFeeDay"] = this.lateFeeDay ? this.lateFeeDay.toISOString() : <any>undefined;
+        data["stateID"] = this.stateID;
+        data["gstTaxCode"] = this.gstTaxCode;
+        data["tdsTaxCode"] = this.tdsTaxCode;
+        return data; 
+    }
+}
+
+export interface IPropertyDto {
+    propertyID?: number;
+    propertyType?: number;
+    addressPremises?: string | undefined;
+    addressLine1?: string | undefined;
+    addressLine2?: string | undefined;
+    city?: string | undefined;
+    pinCode?: string | undefined;
+    tdsInterestRate?: number;
+    lateFeeDay?: Date;
+    stateID?: number;
+    gstTaxCode?: number;
+    tdsTaxCode?: number;
+}
+
+export class CreatePropertyCommand implements ICreatePropertyCommand {
+    propertyDto?: PropertyDto | undefined;
+
+    constructor(data?: ICreatePropertyCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.propertyDto = _data["propertyDto"] ? PropertyDto.fromJS(_data["propertyDto"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): CreatePropertyCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreatePropertyCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["propertyDto"] = this.propertyDto ? this.propertyDto.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface ICreatePropertyCommand {
+    propertyDto?: PropertyDto | undefined;
+}
+
+export class UpdatePropertyCommand implements IUpdatePropertyCommand {
+    propertyDto?: PropertyDto | undefined;
+
+    constructor(data?: IUpdatePropertyCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.propertyDto = _data["propertyDto"] ? PropertyDto.fromJS(_data["propertyDto"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): UpdatePropertyCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdatePropertyCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["propertyDto"] = this.propertyDto ? this.propertyDto.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface IUpdatePropertyCommand {
+    propertyDto?: PropertyDto | undefined;
 }
 
 export class SellerDto implements ISellerDto {
