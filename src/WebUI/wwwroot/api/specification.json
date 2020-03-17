@@ -6,6 +6,120 @@
     "version": "1.0.0"
   },
   "paths": {
+    "/api/Property": {
+      "get": {
+        "tags": [
+          "Property"
+        ],
+        "operationId": "Property_Get",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PropertyDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Property"
+        ],
+        "operationId": "Property_Create",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePropertyCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/Property/{id}": {
+      "put": {
+        "tags": [
+          "Property"
+        ],
+        "operationId": "Property_Update",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePropertyCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
     "/api/Seller": {
       "get": {
         "tags": [
@@ -565,6 +679,88 @@
   },
   "components": {
     "schemas": {
+      "PropertyDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "propertyID": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "propertyType": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "addressPremises": {
+            "type": "string",
+            "nullable": true
+          },
+          "addressLine1": {
+            "type": "string",
+            "nullable": true
+          },
+          "addressLine2": {
+            "type": "string",
+            "nullable": true
+          },
+          "city": {
+            "type": "string",
+            "nullable": true
+          },
+          "pinCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "tdsInterestRate": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "lateFeeDay": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "stateID": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "gstTaxCode": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "tdsTaxCode": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "CreatePropertyCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "propertyDto": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PropertyDto"
+              }
+            ]
+          }
+        }
+      },
+      "UpdatePropertyCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "propertyDto": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PropertyDto"
+              }
+            ]
+          }
+        }
+      },
       "SellerDto": {
         "type": "object",
         "additionalProperties": false,

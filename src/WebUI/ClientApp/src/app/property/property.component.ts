@@ -3,6 +3,10 @@ import { FormBuilder, FormGroup, Validators, FormGroupDirective } from '@angular
 import { fuseAnimations } from '@fuse/animations';
 import { IRoleReportingTo } from '../models/RoleReportingTo';
 import * as Xlsx from 'xlsx';
+import { PropertyService} from '../property/property.service'
+import { StatesService } from '../shared/services/states.service'
+import { StateDto } from '../ReProServices-api';
+import {SellerService } from '../seller/seller.service';
 
 import * as _ from 'lodash';
 
@@ -16,47 +20,53 @@ export class PropertyComponent implements OnInit, OnDestroy {
   form: FormGroup;
   sellers: any[] = [];
   states: any[] = [{ 'id': 1, 'description': 'karnataka' }];
-  sellerList: any[] = [{ 'id': 1, 'description': 'seller 1' }, { 'id': 2, 'description': 'seller 2' }, { 'id': 3, 'description': 'seller 3' }];
+  sellerList: any[] = [];
   rowData: any[] = [];
   columnDef: any[] = [];
+  sellerData: any[] = [];
+  sellerColumnDef: any[] = [];
+  gstCode: any[] = [{ 'id': 1, 'description': '15%' }];
+  tdsCode: any[] = [{ 'id': 1, 'description': '15%' }];
+  typeOfProperty: any[] = [{ 'id': 1, 'description': 'Land' }, { 'id': 2, 'description': 'Building' }];
 
   isRadioButtonTouched: boolean = true;
 
-  constructor(private _formBuilder: FormBuilder) {
+  constructor(private _formBuilder: FormBuilder, private propertyService: PropertyService, private statesService: StatesService,private sellerService:SellerService) {
 
   }
 
   ngOnInit(): void {
     // Reactive Form
     this.form = this._formBuilder.group({
-     
+      propertyID: [''],
       propertyType: ['', Validators.required],
-      promises: [''],
-      flat: [''],
-      road: [''],
+      addressPremises: [''],
+      addressLine1: [''],
+      addressLine2: [''],
       city: ['', Validators.required],
-      state: ['', Validators.required],
+      stateID: ['', Validators.required],
       pinCode: ['', Validators.required],
-      gstRate: ['', Validators.required],
-      tdsRate: ['', Validators.required],
+      gstTaxCode: ['', Validators.required],
+      tdsTaxCode: ['', Validators.required],
       tdsInterestRate: ['', Validators.required],
-      lateFee: ['', Validators.required],     
+      lateFeeDay: ['', Validators.required],     
       share: ['']
     });
 
-    this.columnDef = [{ 'header': 'Name', 'field': 'name', 'type': 'selection', 'options': this.sellerList },
-      { 'header': 'Share %', 'field': 'share', 'type': 'textbox' }    
+    this.columnDef = [{ 'header': 'Name', 'field': 'addressPremises', 'type': 'label' },
+      { 'header': 'Premises', 'field': 'addressPremises', 'type': 'label' },
+      { 'header': 'GST Rate', 'field': 'gstTaxCode', 'type': 'label' },
+      { 'header': 'TDS Rate', 'field': 'tdsTaxCode', 'type': 'label' }
+    
     ];
 
-    this.rowData = [
-      //{
-      //  'id': '1',
-      //  'name': 1,
-      // 'share':'10'
-      //}
-     
+    this.sellerColumnDef = [{ 'header': 'Name', 'field': 'sellerName', 'type': 'selection','options':this.sellerList },
+    { 'header': 'Share %', 'field': 'share', 'type': 'textbox' }  
 
     ];
+    this.getAllStates();
+    this.getAllProperties();
+    this.getAllSellers();       
   }
 
   clear() {
@@ -64,10 +74,19 @@ export class PropertyComponent implements OnInit, OnDestroy {
   }
 
   save() {
+    //let model = {};
+    //this.propertyService.saveProperty(this.form.valid).subscribe((response) => {
+    //  this.clear();
+    //  this.getAllProperties();
 
+    //});
     if (this.form.valid) {
       let model = this.form.value;
-      let startDate = new Date(this.form.value);
+      this.propertyService.saveProperty(model).subscribe((response) => {
+        this.clear();
+        this.getAllProperties();
+
+      });
     }
   }
 
@@ -78,23 +97,40 @@ export class PropertyComponent implements OnInit, OnDestroy {
   }
 
   selectedRows(eve) {
-    eve.selected[0]['gender'] = 1;
-    eve.selected[0]['birthDate'] = new Date();
-    eve.selected[0]['startDate'] = new Date();
-    eve.selected[0]['toDate'] = new Date();
+   
     this.form.patchValue(eve.selected[0]);
-
     var ele = document.getElementsByClassName('mat-tab-label') as HTMLCollectionOf<HTMLElement>;
     ele[0].click();
 
   }  
-
- 
+   
   addNewSeller() {
   }
 
+  getAllSellers() {
+    this.sellerService.getSellers().subscribe((response) => {
+      this.sellerList = _.map(response, function (item) {
+        return{ 'id': item.sellerID, 'description': item.sellerName };
+      })
+
+      this.sellerColumnDef[0].options = this.sellerList;
+    });
+  }
+
+  getAllProperties() {
+    this.propertyService.getProperties().subscribe((response) => {
+      this.rowData = response;
+    });
+  }
+
+  getAllStates() {
+    this.statesService.getStates().subscribe((response) => {
+      this.states = response;
+    });
+  }
+
   addCoSeller() {
-    this.rowData = [{ 'name': '', 'share': '' }, ...this.rowData];
+    this.sellerData = [{ 'sellerName': '', 'share': '' }, ...this.sellerData];
 
     //if (this.form.valid) {
     //  this.sellers = [this.form.value, ...this.sellers];

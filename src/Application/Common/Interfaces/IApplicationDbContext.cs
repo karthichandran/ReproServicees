@@ -15,6 +15,8 @@ namespace ReProServices.Application.Common.Interfaces
 
         DbSet<Domain.Entities.States> StateList { get; set; }
 
+        DbSet<Domain.Entities.Property> Property { get; set; }
+
         Task<int> SaveChangesAsync(CancellationToken cancellationToken);
     }
 }
