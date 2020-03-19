@@ -1,4 +1,5 @@
-import { Component, OnDestroy,EventEmitter, OnInit, Input,Output,OnChanges, ElementRef, Renderer2, ViewChild, ViewEncapsulation} from '@angular/core';
+import { Component, OnDestroy, EventEmitter, OnInit, Input, Output, OnChanges, ElementRef, Renderer2, ViewChild, ViewEncapsulation } from '@angular/core';
+import { DatatableComponent } from "@swimlane/ngx-datatable";
 import * as _ from 'lodash';
 @Component({
   selector: 'grid',
@@ -14,7 +15,7 @@ export class GridComponent implements OnInit,OnChanges{
   columnDefs: any[] = [];
   loadingIndicator: boolean;
   reorderable: boolean;
-  @ViewChild('table') table: any;
+  @ViewChild('table', { static: false }) table: DatatableComponent;
 
   @Input() dataSet: any[];
   @Input() gridColDef: any[];
@@ -29,8 +30,14 @@ export class GridComponent implements OnInit,OnChanges{
     this.columnDefs = this.gridColDef;   
     this.loadingIndicator = false;   
   }
-  ngOnChanges(changes:any): void {
+  ngOnChanges(changes: any): void {
     this.rowData = changes.dataSet.currentValue;
+    this.rowData = [...this.rowData];
+    if (this.table && this.table.recalculate) {
+      this.table.recalculate();
+      window.dispatchEvent(new Event('resize'));
+    }
+   // this.table.recalculate();
   }
 
   onSelect(eve) {

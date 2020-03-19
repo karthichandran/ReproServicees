@@ -4,6 +4,11 @@ import { fuseAnimations } from '@fuse/animations';
 import { IRoleReportingTo } from '../models/RoleReportingTo';
 import * as Xlsx from 'xlsx';
 import { FusePerfectScrollbarDirective } from '@fuse/directives/fuse-perfect-scrollbar/fuse-perfect-scrollbar.directive';
+import { CustomerDto, CustomerShareList} from './CustomerDto';
+import { CustomerPropertyDto } from './CustomerPropertyDto';
+import { PropertyService } from '../property/property.service';
+import { StatesService } from '../shared/services/states.service';
+import * as _ from 'lodash';
 
 
 @Component({
@@ -19,62 +24,65 @@ export class ClientComponent implements OnInit, OnDestroy {
 
   clients: any[] = [];
   sellers: any[] = [];
-  states: any[] = [{ 'id': 1, 'description': 'karnataka' }];
+  states: any[] = [];
   form16Options: any[] = [{ 'id': 1, 'description': 'Yes' }, { 'id': 2, 'description': 'No' }];
   rowData: any[] = [];
-  customerData: any[] = [];
+  customerData: any = [];
   customerColumnDef: any[] = [];
   declaration=new FormControl();
   isRadioButtonTouched: boolean = true;
+  showAddressClearBtn: boolean = false;
+  propertyList: any[] = [];
 
   @ViewChildren(FusePerfectScrollbarDirective)
   fuseScrollbarDirectives: QueryList<FusePerfectScrollbarDirective>;
 
 
-  constructor(private _formBuilder: FormBuilder) {
+  constructor(private _formBuilder: FormBuilder , private propertyService: PropertyService, private statesService: StatesService) {
 
   }
-
+ 
   ngOnInit(): void {
     // Reactive Form
     this.customerform = this._formBuilder.group({
-      declarationDate: [''],
+      customerID:[''],     
       name: ['', Validators.required],
-      promises: ['', Validators.required],
-      flat: ['', Validators.required],
-      road: [''],
+      addressPremises: ['', Validators.required],
+      adressLine1: ['', Validators.required],
+      addressLine2: [''],
       city: ['', Validators.required],
-      state: ['', Validators.required],
+      stateID_FK: ['', Validators.required],
       pinCode: ['', Validators.required],
       pan: ['',[ Validators.required, this.panValidator()]],
-      email: ['',Validators.email],
-      phone: [''],
-      birthDate: ['', Validators.required],
-      form16b: [''],
-      trace: [''],
+      emailID: ['',Validators.email],
+      mobileNo: [''],
+      dateOfBirth: ['', Validators.required],
+      isTracesRegistered: [''],
       traceLogin: [''],
-      tracePwd: [''],
-      share:['']
+      tracesPassword: [''],
+      share: [''],
+      form16b:['']
     });
     // Vertical Stepper form stepper
     this.propertyForm = this._formBuilder.group({
-     
+      propertyID:[''],
       promises: ['', Validators.required],
-      flat: ['', Validators.required],
-      road: [''],
+      address1: ['', Validators.required],
+      address2: [''],
       city: ['', Validators.required],
-      state: ['', Validators.required],
+      stateID: ['', Validators.required],
       pinCode: ['', Validators.required],
-      units: ['', Validators.required],
-      payment: ['', Validators.required],
-      gstRate: ['', Validators.required],
-      tdsRate: ['', Validators.required],
-      totalCost: ['', Validators.required],
-      bookingDate: ['', Validators.required],
+      unitNo: ['', Validators.required],
+      paymentMethodID: ['', Validators.required],
+      gSTRate: ['', Validators.required],
+      tDSRate: ['', Validators.required],
+      totalUnitCost: ['', Validators.required],
+      agreementDate: ['', Validators.required],
       tdsCollected: ['', Validators.required]
     });
 
     this.shareForm = this._formBuilder.group({
+      declarationDate: [''],
       address: ['', Validators.required]
     });
 
@@ -83,59 +91,26 @@ export class ClientComponent implements OnInit, OnDestroy {
      { 'header': 'I/We want seller to download From 16B', 'field': 'form16b', 'type': 'selection','options':this.form16Options }
 
     ];
-    this.customerData = [{ 'name': 'test', 'share': '10' ,'form16b':1}];
-    //this.rowData = [
-    //  {
-    //    'id': '1',
-    //    'name': 'Reyna',
-    //    'empId': 435345345,
-    //    'email': 'test@gmail.com',
-    //    'phone': '23456456456',
-    //    'roleId': 2,
-    //    'role': 'MD',
-    //    'dates': '01/03/2020 to till date',
-    //    'status': 'Active'
-    //  },
-    //  {
-    //    'id': '1',
-    //    'name': 'koli',
-    //    'empId': 435345345,
-    //    'email': 'test@gmail.com',
-    //    'phone': '23456456456',
-    //    'roleId': 2,
-    //    'role': 'MD',
-    //    'dates': '01/03/2020 to till date',
-    //    'status': 'Active'
-    //  },   
+    
 
-    //];
+    this.getAllProperties();
+    this.getAllStates();
   }
 
   clear() {
     this.customerform.reset();
   }
 
-  save() {
-
-    if (this.customerform.valid) {
-      let model = this.customerform.value;
-      let startDate = new Date(this.customerform.value);
-    }
-  }
-
+  
   /**
      * On destroy
      */
   ngOnDestroy(): void {
   }
 
-  selectedRows(eve) {
-    eve.selected[0]['gender'] = 1;
-    eve.selected[0]['birthDate'] = new Date();
-    eve.selected[0]['startDate'] = new Date();
-    eve.selected[0]['toDate'] = new Date();
-    this.customerform.patchValue(eve.selected[0]);
-  }
+  //selectedRows(eve) {
+  //   this.customerform.patchValue(eve.selected[0]);
+  //}
 
   download() {
     const ws: Xlsx.WorkSheet = Xlsx.utils.json_to_sheet(this.rowData);
@@ -148,26 +123,43 @@ export class ClientComponent implements OnInit, OnDestroy {
     this.customerform.patchValue(model);
   }
   addCoClient() {
-    //this.sellerColumnDef = [{ 'header': 'Name', 'field': 'name', 'type': 'label' },
-    //{ 'header': 'Share %', 'field': 'share', 'type': 'textbox' }
+        
+    var invalidList = _.filter(this.customerform.controls, function ( item) {
+      return item.validator != null && item.value=="";
+    })
 
-    //];
-    //this.sellerData = [{ 'name': 'test', 'share': '120' }];
-   
-    if (this.customerform.valid) {
-     
-      this.clients = [this.customerform.value, ...this.clients];
+    if (this.customerform.valid && invalidList.length==0) {
+      this.showAddressClearBtn = true;
+      this.clients.push( _.clone(this.customerform.value));
+     // this.customerData = [{ 'name': 'test', 'share': '10', 'form16b': 1 }, { 'name': 'test', 'share': '10', 'form16b': 1 }];
+      this.fillCustomerShareGrid(this.customerform.value);
 
-     // this.gridComp.toggleExpandRow(this.clients);
-      this.customerform.reset();
+     let client = this.customerform.value;
+      client.name = '';
+      client.addressPremises = '';
+      client.mobileNo = '';
+      client.emailID = '';
+      client.pan = '';
+      client.dateOfBirth = '';
+     this.customerform.patchValue(client);
 
+      //To Reset control validators
+      var formcontrl = this.customerform;
+      _.forEach(['name', 'addressPremises', 'mobileNo', 'emailID', 'pan', 'dateOfBirth'], function (item) {
+        let control = formcontrl.get(item);
+        control.setErrors(null);
+      });      
+  
     }
     else {
-    
-      Object.keys(this.customerform.controls).forEach(field => {
-        const control = this.customerform.get(field);
-        control.markAsTouched({ onlySelf: true });
-      });
+      let client = this.customerform.value;
+      this.customerform.reset();
+      this.customerform.patchValue(client);
+      //this.customerform.markAllAsTouched();
+      //Object.keys(this.customerform.controls).forEach(field => {
+      //  const control = this.customerform.get(field);
+      //  control.markAsTouched({ onlySelf: true });
+      //});
       //this.form.markAsTouched({ onlySelf: true });
       // this.form.markAllAsTouched();
     }
@@ -185,7 +177,58 @@ export class ClientComponent implements OnInit, OnDestroy {
   };
    }
 
-  submitCustomer() {
+  saveCustomer(): void {
+    if (this.customerform.valid) {
+      let model = this.customerform.value;
+      let startDate = new Date(this.customerform.value);
+    }
+  }
+
+  saveProperty(): void {
+  }
+
+  submitCustomer():void {
     let vatest = "";
+  }
+
+  clearAddress(): void {
+    this.showAddressClearBtn = false;
+    let client = this.customerform.value;
+    this.customerform.reset();
+    client.adressLine1 = '';
+    client.addressLine2 = '';
+    client.city = '';
+    client.stateID_FK = '';
+    client.pinCode = '';   
+    this.customerform.patchValue(client);
+    Object.keys(this.customerform.controls).forEach(field => {
+      const control = this.customerform.get(field);
+      control.setErrors(null);
+    });
+
+  }
+
+  getAllProperties() {
+    this.propertyService.getProperties().subscribe((response) => {
+      this.propertyList = response;
+    });
+  }
+
+  getAllStates() {
+    this.statesService.getStates().subscribe((response) => {
+      this.states = response;
+    });
+  }
+
+  fillCustomerShareGrid(cust: any) {
+    let newCustomer = {
+      name : cust.name,
+      customerID : cust.name,
+      share :cust.share,
+      form16b : cust.form16b,
+    }
+
+    this.customerData.push(newCustomer);
+    this.customerData = [...this.customerData];
   }
 }

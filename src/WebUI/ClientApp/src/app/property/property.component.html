@@ -35,7 +35,7 @@
       <!-- CONTENT -->
       <div class="content">
 
-        <mat-tab-group fxLayout="column" fxFlex>
+        <mat-tab-group fxLayout="column" fxFlex  (selectedTabChange)="tabChanged($event)">
 
           <mat-tab label="Manage Property" #tab1>
 
@@ -151,12 +151,12 @@
                     </div>
 
                   </form>
-                  <div fxLayout="column" fxLayoutAlign="center end" style="margin-bottom:20px;">
+                  <!--<div fxLayout="column" fxLayoutAlign="center end" style="margin-bottom:20px;">
                     <button mat-raised-button class=" mt-24 mt-md-0 mr-24 pink"  [routerLink]="'/seller'">
                       <span>Add New Seller </span>
                       <mat-icon class="s-22" style="margin-left:5px">group</mat-icon>
                     </button>
-                  </div>
+                  </div>-->
 
                   <div fxLayout="row wrap">
                     <div class="sellers" fxFlex>

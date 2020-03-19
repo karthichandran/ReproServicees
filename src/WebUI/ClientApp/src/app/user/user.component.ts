@@ -1,8 +1,10 @@
 import { Component, OnDestroy, OnInit ,ViewChild, ElementRef} from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MatTabChangeEvent } from '@angular/material/tabs';
 import { fuseAnimations } from '@fuse/animations';
 import { IRoleReportingTo } from '../models/RoleReportingTo';
 import * as Xlsx from 'xlsx';
+import { UserService} from '../user/user.service';
 
 @Component({
   selector: 'app-user',
@@ -18,7 +20,7 @@ export class UserComponent implements OnInit, OnDestroy {
   columnDef: any[] = [];
 
 
-  constructor(private _formBuilder: FormBuilder) {
+  constructor(private _formBuilder: FormBuilder, private userService: UserService) {
 
   }
 
@@ -131,5 +133,20 @@ export class UserComponent implements OnInit, OnDestroy {
     const wb: Xlsx.WorkBook = Xlsx.utils.book_new();
     Xlsx.utils.book_append_sheet(wb, ws, "Sheet1");
     Xlsx.writeFile(wb, '.xls');
-  } 
+  }
+
+
+  tabChanged(eve: MatTabChangeEvent) {
+    //console.log('tabChangeEvent => ', eve);
+    //console.log('index => ', eve.index);
+    if (eve.index == 1) {
+      this.getAllUsers();
+    }
+  }
+
+  getAllUsers() {
+    this.userService.getUsers().subscribe((response) => {
+      this.rowData = response;
+    });
+  }
 }
