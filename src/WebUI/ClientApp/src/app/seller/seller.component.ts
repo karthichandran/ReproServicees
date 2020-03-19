@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormGroupDirective, ValidatorFn, AbstractControl} from '@angular/forms';
 import { fuseAnimations } from '@fuse/animations';
+import { MatTabChangeEvent } from '@angular/material/tabs';
 import { IRoleReportingTo } from '../models/RoleReportingTo';
 import { SellerService } from './seller.service';
 import { StatesService} from '../shared/services/states.service'
@@ -52,9 +53,7 @@ export class SellerComponent implements OnInit, OnDestroy {
       { 'header': 'Mobile', 'field': 'mobileNo', 'type': 'label' }
     ];
 
-    this.getAllSellers();
     this.getAllStates();
-
   }
   
   save() {
@@ -63,8 +62,6 @@ export class SellerComponent implements OnInit, OnDestroy {
       let model = this.form.value;
       this.sellerService.saveSeller(model).subscribe((response) => {
         this.clear();
-        this.getAllSellers();
-        
       });
     }
   }
@@ -140,5 +137,14 @@ export class SellerComponent implements OnInit, OnDestroy {
       const ret = (control.value !== '') ? new RegExp('^[A-Za-z]{5}[0-9]{4}[A-Za-z]$').test(control.value) : true;
       return !ret ? { 'invalidNumber': { value: control.value } } : null;
     };
+  }
+
+
+  tabChanged(eve: MatTabChangeEvent) {
+    //console.log('tabChangeEvent => ', eve);
+    //console.log('index => ', eve.index);
+    if (eve.index == 1) {
+      this.getAllSellers();
+    }
   }
 }

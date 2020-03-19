@@ -51,9 +51,9 @@ namespace ReProServices.WebUI
                 .AddNewtonsoftJson();
 
             //todo get rid of this line
-            services.AddDbContext<ApplicationDbContext>(options => {
-                options.UseSqlServer("Server=DESKTOP-0PJ1FAE;Database=RePro;Trusted_Connection=True;MultipleActiveResultSets=true");
-            });
+            //services.AddDbContext<ApplicationDbContext>(options => {
+            //    options.UseSqlServer("Server=DESKTOP-0PJ1FAE;Database=RePro;Trusted_Connection=True;MultipleActiveResultSets=true");
+            //});
             
 
             services.AddRazorPages();

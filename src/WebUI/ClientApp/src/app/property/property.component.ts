@@ -1,10 +1,11 @@
 import { Component, OnDestroy, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormGroupDirective } from '@angular/forms';
+import { MatTabChangeEvent} from '@angular/material/tabs';
 import { fuseAnimations } from '@fuse/animations';
 import { IRoleReportingTo } from '../models/RoleReportingTo';
 import * as Xlsx from 'xlsx';
-import { PropertyService} from '../property/property.service'
-import { StatesService } from '../shared/services/states.service'
+import { PropertyService } from '../property/property.service';
+import { StatesService } from '../shared/services/states.service';
 import { StateDto } from '../ReProServices-api';
 import {SellerService } from '../seller/seller.service';
 
@@ -19,7 +20,7 @@ import * as _ from 'lodash';
 export class PropertyComponent implements OnInit, OnDestroy {
   form: FormGroup;
   sellers: any[] = [];
-  states: any[] = [{ 'id': 1, 'description': 'karnataka' }];
+  states: any[] = [];
   sellerList: any[] = [];
   rowData: any[] = [];
   columnDef: any[] = [];
@@ -65,7 +66,6 @@ export class PropertyComponent implements OnInit, OnDestroy {
 
     ];
     this.getAllStates();
-    this.getAllProperties();
     this.getAllSellers();       
   }
 
@@ -73,35 +73,33 @@ export class PropertyComponent implements OnInit, OnDestroy {
     this.form.reset();
   }
 
-  save() {
-    //let model = {};
-    //this.propertyService.saveProperty(this.form.valid).subscribe((response) => {
-    //  this.clear();
-    //  this.getAllProperties();
-
-    //});
+  save(): void {
+    this.validateSharePercentage();
     if (this.form.valid) {
       let model = this.form.value;
       this.propertyService.saveProperty(model).subscribe((response) => {
         this.clear();
-        this.getAllProperties();
-
       });
     }
   }
 
+  validateSharePercentage() {
+    let share: number=0;
+    _.forEach(this.sellerData, function (item) {
+      share += parseInt(item.share);
+    });
+
+  }
   /**
      * On destroy
      */
   ngOnDestroy(): void {
   }
 
-  selectedRows(eve) {
-   
+  selectedRows(eve) {   
     this.form.patchValue(eve.selected[0]);
     var ele = document.getElementsByClassName('mat-tab-label') as HTMLCollectionOf<HTMLElement>;
     ele[0].click();
-
   }  
    
   addNewSeller() {
@@ -153,5 +151,11 @@ export class PropertyComponent implements OnInit, OnDestroy {
     //}
   }
 
-
+  tabChanged(eve: MatTabChangeEvent) {
+    //console.log('tabChangeEvent => ', eve);
+    //console.log('index => ', eve.index);
+    if (eve.index == 1) {
+      this.getAllProperties();
+    }
+  }
 }
